@@ -12,7 +12,32 @@ public class playerController : MonoBehaviour {
 	public GameObject forkMax;
 	public GameObject forkMin;
 
+	public GameObject camTarget;
+	public float camYRot=0;
+	public float camRotSpeed =.1f;
+
+	public float camLPos=0;
+	public float camLiftSpeed =.1f;
+	public float camCeiling = 10f;
+	public float camFloor = -10f;
+
 	public float liftSpeed = 1;
+
+	public void Update(){
+
+		float mDeltaX = Input.GetAxis("Mouse X");
+		float mDeltaY = Input.GetAxis("Mouse Y");
+
+		camYRot += mDeltaX*camRotSpeed;
+		camLPos -= mDeltaY * camLiftSpeed;
+		if (camLPos > camCeiling)
+			camLPos = camCeiling;
+		else if (camLPos < camFloor)
+			camLPos = camFloor;
+
+		camTarget.transform.rotation = Quaternion.EulerAngles (camLPos, camYRot, 0);
+
+	}
 
     public void FixedUpdate()
     {
