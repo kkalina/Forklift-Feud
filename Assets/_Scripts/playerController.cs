@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using XInputDotNetPure;
 
 public class playerController : MonoBehaviour {
 
@@ -26,15 +27,36 @@ public class playerController : MonoBehaviour {
 	public Transform centerOfMassTF;
 	public Transform playerStart;
 
+	public Camera cam;
+	public int playerNumber;
+
+
+	public PlayerIndex playerIndexNum;
+	private GamePadState state;
+
 	void Start () {
 		Cursor.lockState = CursorLockMode.Locked;
-		this.gameObject.GetComponent<Rigidbody> ().centerOfMass = centerOfMassTF.position;
+		this.gameObject.GetComponent<Rigidbody> ().centerOfMass = centerOfMassTF.localPosition;
+		cam.rect = new Rect( 0.5f*playerNumber-0.5f,0, 0.5f,1);
+		if (playerNumber == 1) {
+			playerIndexNum = PlayerIndex.One;
+		}else if (playerNumber == 2) {
+			playerIndexNum = PlayerIndex.Two;
+		}
 	}
 
 	public void Update(){
+		float mDeltaX;
+		float mDeltaY;
 
-		float mDeltaX = Input.GetAxis("Mouse X");
-		float mDeltaY = Input.GetAxis("Mouse Y");
+		state = GamePad.GetState(playerIndexNum);
+		if (state.IsConnected) {
+			mDeltaX = state.ThumbSticks.Right.X;
+			mDeltaY = state.ThumbSticks.Right.Y;
+		} else {
+			mDeltaX = Input.GetAxis ("Mouse X");
+			mDeltaY = Input.GetAxis ("Mouse Y");
+		}
 
 		camYRot += mDeltaX*camRotSpeed;
 		camLPos -= mDeltaY * camLiftSpeed;
@@ -55,8 +77,18 @@ public class playerController : MonoBehaviour {
 
     public void FixedUpdate()
     {
-        float motor = maxMotorTorque * Input.GetAxis("Vertical");
-        float steering = maxSteeringAngle * Input.GetAxis("Horizontal");
+		float motor;
+		float steering;
+
+		state = GamePad.GetState(playerIndexNum);
+		if (state.IsConnected) {
+			motor = maxMotorTorque * state.ThumbSticks.Left.Y;
+			steering = maxSteeringAngle * state.ThumbSticks.Left.X;
+
+		} else {
+			motor = maxMotorTorque * Input.GetAxis ("Vertical");
+			steering = maxSteeringAngle * Input.GetAxis ("Horizontal");
+		}
 
         foreach (AxleInfo axleInfo in axleInfos)
         {
