@@ -4,21 +4,15 @@ using System.Collections.Generic;
 
 public class playerController : MonoBehaviour {
 
-    public float speed = 5f;
-    /*
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void FixedUpdate () {
-        this.gameObject.GetComponent<Rigidbody>().AddForce(this.transform.forward*-1f*Input.GetAxis("Vertical")*speed);
-	}*/
+    public List<AxleInfo> axleInfos;
+    public float maxMotorTorque;
+    public float maxSteeringAngle;
 
-    public List<AxleInfo> axleInfos; // the information about each individual axle
-    public float maxMotorTorque; // maximum torque the motor can apply to wheel
-    public float maxSteeringAngle; // maximum steer angle the wheel can have
+	public GameObject fork;
+	public GameObject forkMax;
+	public GameObject forkMin;
+
+	public float liftSpeed = 1;
 
     public void FixedUpdate()
     {
@@ -38,6 +32,12 @@ public class playerController : MonoBehaviour {
                 axleInfo.rightWheel.motorTorque = motor;
             }
         }
+
+		if (Input.GetMouseButton (0) && (fork.transform.localPosition.y < forkMax.transform.localPosition.y)) {
+			fork.transform.localPosition = new Vector3 (fork.transform.localPosition.x,fork.transform.localPosition.y+liftSpeed,fork.transform.localPosition.z);
+		}else if (Input.GetMouseButton (1) && (fork.transform.localPosition.y > forkMin.transform.localPosition.y)) {
+			fork.transform.localPosition = new Vector3 (fork.transform.localPosition.x,fork.transform.localPosition.y-liftSpeed,fork.transform.localPosition.z);
+		}
     }
 }
 
@@ -46,7 +46,7 @@ public class AxleInfo
 {
     public WheelCollider leftWheel;
     public WheelCollider rightWheel;
-    public bool motor; // is this wheel attached to motor?
-    public bool steering; // does this wheel apply steer angle?
+    public bool motor;
+    public bool steering;
 }
 
