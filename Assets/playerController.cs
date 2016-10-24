@@ -23,6 +23,13 @@ public class playerController : MonoBehaviour {
 
 	public float liftSpeed = 1;
 
+	public Transform centerOfMassTF;
+
+	void Start () {
+		Cursor.lockState = CursorLockMode.Locked;
+		this.gameObject.GetComponent<Rigidbody> ().centerOfMass = centerOfMassTF.position;
+	}
+
 	public void Update(){
 
 		float mDeltaX = Input.GetAxis("Mouse X");
