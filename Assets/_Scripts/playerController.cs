@@ -24,6 +24,7 @@ public class playerController : MonoBehaviour {
 	public float liftSpeed = 1;
 
 	public Transform centerOfMassTF;
+	public Transform playerStart;
 
 	void Start () {
 		Cursor.lockState = CursorLockMode.Locked;
@@ -44,6 +45,12 @@ public class playerController : MonoBehaviour {
 
 		camTarget.transform.rotation = Quaternion.EulerAngles (camLPos, camYRot, 0);
 
+		if (Input.GetKeyDown (KeyCode.R)) {
+			this.gameObject.transform.position = playerStart.position;
+			this.gameObject.transform.rotation = playerStart.rotation;
+			this.gameObject.GetComponent<Rigidbody> ().velocity = Vector3.zero;
+			this.gameObject.GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
+		}
 	}
 
     public void FixedUpdate()
