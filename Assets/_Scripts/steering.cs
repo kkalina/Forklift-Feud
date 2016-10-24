@@ -16,18 +16,20 @@ public class steering : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-		int playerNumber = parentPlayer.GetComponent<playerController> ().playerNumber;
+		/*int playerNumber = parentPlayer.GetComponent<playerController> ().playerNumber;
 		if (playerNumber == 1) {
 			playerIndexNum = PlayerIndex.One;
 		}else if (playerNumber == 2) {
 			playerIndexNum = PlayerIndex.Two;
-		}
+		}*/
+		playerIndexNum = parentPlayer.GetComponent<playerController> ().playerIndexNum;
 	}
 	
 	// Update is called once per frame
 	void FixedUpdate () {
 		state = GamePad.GetState(playerIndexNum);
 		if (state.IsConnected) {
+			//Debug.Log ("Controller " + playerIndexNum.ToString () + " steering connected.");
 			steeringPos = state.ThumbSticks.Left.X * travel;
 			cosmeticPos = state.ThumbSticks.Left.X * cosmeticTravel;
 		} else {

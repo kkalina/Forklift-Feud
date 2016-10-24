@@ -51,6 +51,7 @@ public class playerController : MonoBehaviour {
 
 		state = GamePad.GetState(playerIndexNum);
 		if (state.IsConnected) {
+			//Debug.Log ("Controller " + playerIndexNum.ToString () + " connected.");
 			mDeltaX = state.ThumbSticks.Right.X;
 			mDeltaY = state.ThumbSticks.Right.Y;
 		} else {
@@ -82,12 +83,22 @@ public class playerController : MonoBehaviour {
 
 		state = GamePad.GetState(playerIndexNum);
 		if (state.IsConnected) {
-			motor = maxMotorTorque * state.ThumbSticks.Left.Y;
+			//motor = maxMotorTorque * state.ThumbSticks.Left.Y;
+			motor = maxMotorTorque * -(state.Triggers.Left - state.Triggers.Right);
 			steering = maxSteeringAngle * state.ThumbSticks.Left.X;
-
+			if ((state.Buttons.RightShoulder == ButtonState.Pressed) && (fork.transform.localPosition.y < forkMax.transform.localPosition.y)) {
+				fork.transform.localPosition = new Vector3 (fork.transform.localPosition.x,fork.transform.localPosition.y+liftSpeed,fork.transform.localPosition.z);
+			}else if ((state.Buttons.LeftShoulder == ButtonState.Pressed) && (fork.transform.localPosition.y > forkMin.transform.localPosition.y)) {
+				fork.transform.localPosition = new Vector3 (fork.transform.localPosition.x,fork.transform.localPosition.y-liftSpeed,fork.transform.localPosition.z);
+			}
 		} else {
 			motor = maxMotorTorque * Input.GetAxis ("Vertical");
 			steering = maxSteeringAngle * Input.GetAxis ("Horizontal");
+			if (Input.GetMouseButton (0) && (fork.transform.localPosition.y < forkMax.transform.localPosition.y)) {
+				fork.transform.localPosition = new Vector3 (fork.transform.localPosition.x,fork.transform.localPosition.y+liftSpeed,fork.transform.localPosition.z);
+			}else if (Input.GetMouseButton (1) && (fork.transform.localPosition.y > forkMin.transform.localPosition.y)) {
+				fork.transform.localPosition = new Vector3 (fork.transform.localPosition.x,fork.transform.localPosition.y-liftSpeed,fork.transform.localPosition.z);
+			}
 		}
 
         foreach (AxleInfo axleInfo in axleInfos)
@@ -104,11 +115,7 @@ public class playerController : MonoBehaviour {
             }
         }
 
-		if (Input.GetMouseButton (0) && (fork.transform.localPosition.y < forkMax.transform.localPosition.y)) {
-			fork.transform.localPosition = new Vector3 (fork.transform.localPosition.x,fork.transform.localPosition.y+liftSpeed,fork.transform.localPosition.z);
-		}else if (Input.GetMouseButton (1) && (fork.transform.localPosition.y > forkMin.transform.localPosition.y)) {
-			fork.transform.localPosition = new Vector3 (fork.transform.localPosition.x,fork.transform.localPosition.y-liftSpeed,fork.transform.localPosition.z);
-		}
+
     }
 }
 
