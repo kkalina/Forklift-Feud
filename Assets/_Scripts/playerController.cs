@@ -5,6 +5,12 @@ using XInputDotNetPure;
 
 public class playerController : MonoBehaviour {
 
+	public float velocity = 0f;
+	public Vector3 localVelocity = Vector3.zero;
+	public float inputPower = 0f;
+	public float forceMultiplier = 1f;
+	public float maxVelocity = 10f;
+
     public List<AxleInfo> axleInfos;
     public float maxMotorTorque;
     public float maxSteeringAngle;
@@ -34,9 +40,16 @@ public class playerController : MonoBehaviour {
 	public PlayerIndex playerIndexNum;
 	private GamePadState state;
 
+	public Rigidbody rigid;
+
+	void Awake(){
+
+		rigid = this.gameObject.GetComponent<Rigidbody>();
+	}
+
 	void Start () {
 		Cursor.lockState = CursorLockMode.Locked;
-		this.gameObject.GetComponent<Rigidbody> ().centerOfMass = centerOfMassTF.localPosition;
+		rigid.centerOfMass = centerOfMassTF.localPosition;
 		cam.rect = new Rect( 0.5f*playerNumber-0.5f,0, 0.5f,1);
 		if (playerNumber == 1) {
 			playerIndexNum = PlayerIndex.One;
@@ -69,10 +82,10 @@ public class playerController : MonoBehaviour {
 		camTarget.transform.rotation = Quaternion.EulerAngles (camLPos, camYRot, 0);
 
 		if (Input.GetKeyDown (KeyCode.R)) {
-			this.gameObject.transform.position = playerStart.position;
+			//this.gameObject.transform.position = playerStart.position;
 			this.gameObject.transform.rotation = playerStart.rotation;
-			this.gameObject.GetComponent<Rigidbody> ().velocity = Vector3.zero;
-			this.gameObject.GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
+			rigid.velocity = Vector3.zero;
+			rigid.angularVelocity = Vector3.zero;
 		}
 	}
 
@@ -80,11 +93,18 @@ public class playerController : MonoBehaviour {
     {
 		float motor;
 		float steering;
+		velocity = rigid.velocity.magnitude;
+		localVelocity = transform.InverseTransformDirection(rigid.velocity);
 
 		state = GamePad.GetState(playerIndexNum);
 		if (state.IsConnected) {
 			//motor = maxMotorTorque * state.ThumbSticks.Left.Y;
-			motor = maxMotorTorque * -(state.Triggers.Left - state.Triggers.Right);
+			inputPower = -(state.Triggers.Left - state.Triggers.Right);
+			motor = maxMotorTorque * inputPower;
+			if((inputPower>0)&&(localVelocity.z < maxVelocity))
+				rigid.AddForce (this.gameObject.transform.forward * inputPower * forceMultiplier);
+			else if((inputPower<0)&&(localVelocity.z > -maxVelocity))
+				rigid.AddForce (this.gameObject.transform.forward * inputPower * forceMultiplier);
 			steering = maxSteeringAngle * state.ThumbSticks.Left.X;
 			if ((state.Buttons.RightShoulder == ButtonState.Pressed) && (fork.transform.localPosition.y < forkMax.transform.localPosition.y)) {
 				fork.transform.localPosition = new Vector3 (fork.transform.localPosition.x,fork.transform.localPosition.y+liftSpeed,fork.transform.localPosition.z);
@@ -92,7 +112,8 @@ public class playerController : MonoBehaviour {
 				fork.transform.localPosition = new Vector3 (fork.transform.localPosition.x,fork.transform.localPosition.y-liftSpeed,fork.transform.localPosition.z);
 			}
 		} else {
-			motor = maxMotorTorque * Input.GetAxis ("Vertical");
+			inputPower = Input.GetAxis ("Vertical");
+			motor = maxMotorTorque * inputPower;
 			steering = maxSteeringAngle * Input.GetAxis ("Horizontal");
 			if (Input.GetMouseButton (0) && (fork.transform.localPosition.y < forkMax.transform.localPosition.y)) {
 				fork.transform.localPosition = new Vector3 (fork.transform.localPosition.x,fork.transform.localPosition.y+liftSpeed,fork.transform.localPosition.z);
@@ -110,8 +131,8 @@ public class playerController : MonoBehaviour {
             }
             if (axleInfo.motor)
             {
-                axleInfo.leftWheel.motorTorque = motor;
-                axleInfo.rightWheel.motorTorque = motor;
+                //axleInfo.leftWheel.motorTorque = motor;
+                //axleInfo.rightWheel.motorTorque = motor;
             }
         }
 
