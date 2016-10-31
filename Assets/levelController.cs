@@ -3,11 +3,15 @@ using System.Collections;
 
 public class levelController : MonoBehaviour {
 
-	public string nextLevel;
+	public string nextLevelName;
 
 	void Update () {
 		if (Input.GetKeyDown (KeyCode.Return)) {
-			Application.LoadLevel (nextLevel);
+			nextLevel();
 		}
+	}
+
+	public void nextLevel(){
+		Application.LoadLevel (nextLevelName);
 	}
 }
