@@ -103,7 +103,16 @@ public class playerController : MonoBehaviour {
 		} else {
 			mDeltaX = Input.GetAxis ("Mouse X");
 			mDeltaY = Input.GetAxis ("Mouse Y");
-		}
+
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                respawn();
+            }
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                reset();
+            }
+        }
 
 		camYRot += mDeltaX*camRotSpeed;
 		camLPos -= mDeltaY * camLiftSpeed;
@@ -193,7 +202,62 @@ public class playerController : MonoBehaviour {
 			}
 		} else {
 			inputPower = Input.GetAxis ("Vertical");
-			motor = maxMotorTorque * inputPower;
+
+            if (inputPower < 0)
+            {
+                tailLight1.enabled = true;
+                tailLight2.enabled = true;
+            }
+            else {
+
+                tailLight1.enabled = false;
+                tailLight2.enabled = false;
+            }
+            float tempMaxVel = maxVelocity;
+            if (boostEnabled)
+            {
+                if ((Input.GetKey(KeyCode.LeftShift)) && (inputPower > 0.8f) && (turboFuel > 0))
+                {
+                    tempMaxVel = 3 * maxVelocity;
+                    inputPower = inputPower * 2;
+                    cam.gameObject.GetComponent<shake>().shakeTime += Time.deltaTime;
+                    if (cam.fieldOfView < (origFOV + fieldOfViewShift))
+                        cam.fieldOfView += 0.1f;
+                    turboFuel -= (Time.fixedDeltaTime * 50);
+                    if (turboFuel < 0)
+                        turboFuel = 0;
+                    int displayFuel = (int)turboFuel;
+                    fuelGauge.text = "Fuel: " + displayFuel.ToString();
+                    lastTurbo = Time.time;
+                    afterBurner.SetActive(true);
+                }
+                else {
+                    if (cam.fieldOfView > origFOV)
+                        cam.fieldOfView -= 0.2f;
+                    if (Time.time > (lastTurbo + rechargeDelay))
+                    {
+                        if (turboFuel < 100)
+                            turboFuel += (Time.fixedDeltaTime * 10);
+                        if (turboFuel > 100)
+                            turboFuel = 100;
+                        int displayFuel = (int)turboFuel;
+                        fuelGauge.text = "Fuel: " + displayFuel.ToString();
+                    }
+                    afterBurner.SetActive(false);
+                }
+            }
+            else {
+                fuelGauge.text = " ";
+            }
+            //motor = maxMotorTorque * inputPower;
+            if (FRWheelGrounded || FLWheelGrounded || RRWheelGrounded || RLWheelGrounded || afterBurner.activeInHierarchy)
+            {
+                if ((inputPower > 0) && (localVelocity.z < tempMaxVel))
+                    rigid.AddForce(this.gameObject.transform.forward * inputPower * forceMultiplier);
+                else if ((inputPower < 0) && (localVelocity.z > -tempMaxVel))
+                    rigid.AddForce(this.gameObject.transform.forward * inputPower * forceMultiplier);
+            }
+            
 			steering = maxSteeringAngle * Input.GetAxis ("Horizontal");
 			if (Input.GetMouseButton (0) && (fork.transform.localPosition.y < forkMax.transform.localPosition.y)) {
 				fork.transform.localPosition = new Vector3 (fork.transform.localPosition.x,fork.transform.localPosition.y+liftSpeed,fork.transform.localPosition.z);

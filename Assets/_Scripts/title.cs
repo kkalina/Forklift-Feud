@@ -28,11 +28,32 @@ public class title : MonoBehaviour {
 					hold = .2f;
 				}
 			}
-			if (Input.GetKeyDown (KeyCode.Return)) {
-				Application.LoadLevel (firstLevel);
-			}
 		} else {
 			hold -= Time.deltaTime;
-		}
-	}
+        }
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            Application.LoadLevel(firstLevel);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            Application.LoadLevel("Level1");
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            Application.LoadLevel("Level2");
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            Application.LoadLevel("Level3");
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            Application.LoadLevel("Level4");
+        }
+        else if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+    }
 }
