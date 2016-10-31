@@ -11,6 +11,7 @@ public class playerController : MonoBehaviour {
 	public float forceMultiplier = 1f;
 	public float maxVelocity = 10f;
 
+	public bool boostEnabled = true;
 	public float turboFuel = 100;
 	private float lastTurbo = 0f;
 	public float rechargeDelay = 2f;
@@ -147,33 +148,36 @@ public class playerController : MonoBehaviour {
 				tailLight2.enabled = false;
 			}
 			float tempMaxVel = maxVelocity;
-			if ((state.Buttons.A == ButtonState.Pressed) && (inputPower > 0.8f) && (turboFuel > 0)) {
-				tempMaxVel = 3 * maxVelocity;
-				inputPower = inputPower * 2;
-				cam.gameObject.GetComponent<shake> ().shakeTime += Time.deltaTime;
-				if (cam.fieldOfView < (origFOV + fieldOfViewShift))
-					cam.fieldOfView += 0.1f;
-				turboFuel -= (Time.fixedDeltaTime * 50);
-				if (turboFuel < 0)
-					turboFuel = 0;
-				int displayFuel = (int)turboFuel;
-				fuelGauge.text = "Fuel: " + displayFuel.ToString ();
-				lastTurbo = Time.time;
-				afterBurner.SetActive (true);
-			} else {
-				if (cam.fieldOfView > origFOV)
-					cam.fieldOfView -= 0.2f;
-				if (Time.time > (lastTurbo + rechargeDelay)) {
-					if (turboFuel < 100)
-						turboFuel += (Time.fixedDeltaTime * 10);
-					if (turboFuel > 100)
-						turboFuel = 100;
+			if (boostEnabled) {
+				if ((state.Buttons.A == ButtonState.Pressed) && (inputPower > 0.8f) && (turboFuel > 0)) {
+					tempMaxVel = 3 * maxVelocity;
+					inputPower = inputPower * 2;
+					cam.gameObject.GetComponent<shake> ().shakeTime += Time.deltaTime;
+					if (cam.fieldOfView < (origFOV + fieldOfViewShift))
+						cam.fieldOfView += 0.1f;
+					turboFuel -= (Time.fixedDeltaTime * 50);
+					if (turboFuel < 0)
+						turboFuel = 0;
 					int displayFuel = (int)turboFuel;
 					fuelGauge.text = "Fuel: " + displayFuel.ToString ();
+					lastTurbo = Time.time;
+					afterBurner.SetActive (true);
+				} else {
+					if (cam.fieldOfView > origFOV)
+						cam.fieldOfView -= 0.2f;
+					if (Time.time > (lastTurbo + rechargeDelay)) {
+						if (turboFuel < 100)
+							turboFuel += (Time.fixedDeltaTime * 10);
+						if (turboFuel > 100)
+							turboFuel = 100;
+						int displayFuel = (int)turboFuel;
+						fuelGauge.text = "Fuel: " + displayFuel.ToString ();
+					}
+					afterBurner.SetActive (false);
 				}
-				afterBurner.SetActive (false);
+			} else {
+				fuelGauge.text = " ";
 			}
-
 			motor = maxMotorTorque * inputPower;
 			if (FRWheelGrounded || FLWheelGrounded || RRWheelGrounded || RLWheelGrounded || afterBurner.activeInHierarchy) {
 				if ((inputPower > 0) && (localVelocity.z < tempMaxVel))

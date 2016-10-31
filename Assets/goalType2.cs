@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class goal : MonoBehaviour {
+public class goalType2 : MonoBehaviour {
+
+	public int playerGoal = 1;
 
 	public GameObject p1win;
 	public GameObject p2win;
@@ -14,22 +16,22 @@ public class goal : MonoBehaviour {
 
 	// Use this for initialization
 	void OnTriggerEnter (Collider other) {
-		if (!gameEnded) {
-			if (other.gameObject.tag == "player1Objective") {
+		if ((LC.gameEnded == false)&&((other.gameObject.tag == "player1Objective")||(other.gameObject.tag == "player2Objective"))) {
+			if (playerGoal == 1) {
 				Debug.Log ("Player 1 wins!");
 				p1win.SetActive (true);
-				gameEnd = Time.time;
-				gameEnded = true;
-			} else if (other.gameObject.tag == "player2Objective") {
+			} else {
 				Debug.Log ("Player 2 wins!");
 				p2win.SetActive (true);
-				gameEnd = Time.time;
-				gameEnded = true;
 
 			}
+			gameEnd = Time.time;
+			gameEnded = true;
+			LC.gameEnded = true;
 		}
+
 	}
-	
+
 	// Update is called once per frame
 	void FixedUpdate () {
 		if (gameEnded && (Time.time > (gameEnd + endDelay))) {
